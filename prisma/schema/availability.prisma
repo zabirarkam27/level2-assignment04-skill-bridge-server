@@ -1,0 +1,15 @@
+model Availability{
+  id           String                       @id @default(uuid())
+  tutorId      String       @map("tutorId")
+  dayOfWeek    Int
+  startTime    String
+  endTime      String
+
+  tutorProfile TutorProfile @relation(fields: [tutorId], references: [id])
+
+  createdAt    DateTime                     @default(now())
+  updatedAt    DateTime                     @updatedAt
+
+  @@unique([tutorId, dayOfWeek, startTime, endTime])
+  @@index([tutorId])
+}

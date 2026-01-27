@@ -1,0 +1,18 @@
+// আপাতত বানাইলাম
+model User{
+  id                String         @id @default(uuid())
+  name              String
+  email             String         @unique
+  password          String
+  role              ROLE           @default(STUDENT)
+  status            UserStatus     @default(ACTIVE)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  tutorProfile      TutorProfile?
+  bookingsAsStudent Booking[]     @relation("StudentBookings")
+
+  @@index([role])
+  @@index([status])
+}
+// ..............

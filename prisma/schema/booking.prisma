@@ -1,0 +1,18 @@
+model Booking{
+  id        String                        @id @default(uuid())
+  studentId String
+  tutorId   String        @map("tutorId")
+  dateTime  DateTime
+  status    BookingStatus                 @default(PENDING)
+  createdAt DateTime                      @default(now())
+  updatedAt DateTime                      @updatedAt
+
+  student   User          @relation("StudentBookings", fields: [studentId], references: [id])
+  tutor     TutorProfile  @relation(fields: [tutorId], references: [id])
+  review    Review?
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@index([status])
+  @@index([dateTime])
+}

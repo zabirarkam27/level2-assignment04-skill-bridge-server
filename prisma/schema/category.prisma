@@ -1,0 +1,19 @@
+model Category{
+  id        String           @id @default(uuid())
+  name      String           @unique
+  tutors    TutorCategory[]
+
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model TutorCategory{
+  tutorId      String
+  categoryId   String
+
+  tutorProfile TutorProfile @relation(fields: [tutorId], references: [id])
+  Category     Category     @relation(fields: [categoryId], references: [id])
+
+  @@id([tutorId, categoryId])
+  @@index([categoryId])
+}
