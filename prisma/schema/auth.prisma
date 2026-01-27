@@ -1,9 +1,9 @@
-// আপাতত বানাইলাম
 model User{
   id                String         @id @default(uuid())
   name              String
-  email             String         @unique
-  password          String
+  email             String
+  emailVerified     Boolean        @default(false)
+  image             String?
   role              ROLE           @default(STUDENT)
   status            UserStatus     @default(ACTIVE)
   createdAt         DateTime       @default(now())
@@ -11,8 +11,59 @@ model User{
 
   tutorProfile      TutorProfile?
   bookingsAsStudent Booking[]     @relation("StudentBookings")
+  sessions          Session[]
+  accounts          Account[]
 
+  @@unique([email])
+  @@map("user")
   @@index([role])
   @@index([status])
 }
-// ..............
+
+model Session {
+  id        String    @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String     @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
