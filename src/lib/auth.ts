@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Use true for port 465, false for port 587
+  secure: false,
   auth: {
     user: process.env.APP_USER,
     pass: process.env.APP_PASSWORD,
@@ -14,9 +14,30 @@ const transporter = nodemailer.createTransport({
 });
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL!,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  trustedOrigins: [process.env.APP_URL!, process.env.BETTER_AUTH_URL!],
+
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "STUDENT",
+        required: false,
+      },
+      phone: {
+        type: "string",
+        required: false,
+      },
+      status: {
+        type: "string",
+        defaultValue: "ACTIVE",
+        required: false,
+      },
+    },
+  },
 
   emailAndPassword: {
     enabled: true,
@@ -26,10 +47,10 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }, request) => {
+    autoSignInAfterVerification: false,
+    sendVerificationEmail: async ({ user, token }) => {
       try {
-        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+        const verificationUrl = `${process.env.BETTER_AUTH_URL}/api/auth/verify-email?token=${token}`;
         const info = await transporter.sendMail({
           from: '"Skill Bridge" <skillbridge.noreply@gmail.com>',
           to: user.email,
@@ -207,11 +228,9 @@ export const auth = betterAuth({
     google: {
       prompt: "select_account consent",
       accessType: "offline",
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      // allowDangedRedirect: false,
+      clientId: process.env.GOOGLE_CLIENT_ID! as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET! as string,
     },
   },
-
-
+  secret: process.env.BETTER_AUTH_SECRET!,
 });
